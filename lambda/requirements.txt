@@ -1,0 +1,18 @@
+# AWS SDK and Lambda Runtime
+boto3>=1.34.0
+botocore>=1.34.0
+
+# AWS Lambda Powertools for structured logging and tracing
+aws-lambda-powertools>=2.31.0
+
+# Testing frameworks (for development/testing only)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+hypothesis>=6.92.0
+
+# Mocking for tests
+pytest-mock>=3.12.0
+
+aws-xray-sdk==2.12.0
+
+moto==4.2.0

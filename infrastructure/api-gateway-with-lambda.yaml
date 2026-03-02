@@ -1,0 +1,299 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'API Gateway Configuration with Lambda Integration for AI Document Processing'
+
+Parameters:
+  AuthLambdaArn:
+    Type: String
+    Description: ARN of the Auth Lambda function
+  ProcessLambdaArn:
+    Type: String
+    Description: ARN of the Process Lambda function
+  DataLambdaArn:
+    Type: String
+    Description: ARN of the Data Lambda function
+  AdminLambdaArn:
+    Type: String
+    Description: ARN of the Admin Lambda function
+  IntegrationLambdaArn:
+    Type: String
+    Description: ARN of the Integration Lambda function
+
+Resources:
+  # REST API
+  IdpRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ai-document-processing-api
+      Description: REST API for AI Document Processing
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  # Auth Resource and Methods
+  AuthResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: auth
+
+  AuthPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref AuthResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  AuthLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AuthLambdaArn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${IdpRestApi}/*'
+
+  # Forget Password Resource
+  ForgetPasswordResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: forget_password
+
+  ForgetPasswordPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref ForgetPasswordResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  # Reset Password Resource
+  ResetPasswordResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: reset_password
+
+  ResetPasswordPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref ResetPasswordResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  # Sign Up Resource
+  SignUpResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: sign_up
+
+  SignUpPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref SignUpResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  # Process Document Resource
+  ProcessDocumentResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: process_document
+
+  ProcessDocumentPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref ProcessDocumentResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  ProcessLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ProcessLambdaArn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${IdpRestApi}/*'
+
+  # Datapoints Resource
+  DatapointsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: datapoints
+
+  DatapointsGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref DatapointsResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DataLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  # History Resource
+  HistoryResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: history
+
+  HistoryGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref HistoryResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DataLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  # My Transactions Resource
+  MyTransactionsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: mytransactions
+
+  MyTransactionsGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref MyTransactionsResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DataLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  DataLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DataLambdaArn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${IdpRestApi}/*'
+
+  # Add Credit Resource (Admin)
+  AddCreditResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: add_credit
+
+  AddCreditPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref AddCreditResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AdminLambdaArn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+
+  AdminLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AdminLambdaArn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${IdpRestApi}/*'
+
+  # Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - AuthPostMethod
+      - ForgetPasswordPostMethod
+      - ResetPasswordPostMethod
+      - SignUpPostMethod
+      - ProcessDocumentPostMethod
+      - DatapointsGetMethod
+      - HistoryGetMethod
+      - MyTransactionsGetMethod
+      - AddCreditPostMethod
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      Description: Production deployment
+
+  # Stage
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      DeploymentId: !Ref ApiDeployment
+      StageName: prod
+      Description: Production stage
+
+Outputs:
+  ApiGatewayUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${IdpRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
+    Export:
+      Name: !Sub '${AWS::StackName}-ApiUrl'
+  
+  RestApiId:
+    Description: REST API ID
+    Value: !Ref IdpRestApi
+    Export:
+      Name: !Sub '${AWS::StackName}-RestApiId'

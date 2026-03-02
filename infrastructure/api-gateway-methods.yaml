@@ -1,0 +1,63 @@
+# API Gateway Methods Configuration
+# This file contains method definitions for all endpoints
+# Include this in the main api-gateway.yaml template
+
+# Helper macro for CORS OPTIONS method
+CORSOptionsMethod: &cors_options_method
+  Type: AWS::ApiGateway::Method
+  Properties:
+    AuthorizationType: NONE
+    HttpMethod: OPTIONS
+    Integration:
+      Type: MOCK
+      IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+      RequestTemplates:
+        application/json: '{"statusCode": 200}'
+    MethodResponses:
+      - StatusCode: 200
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
+
+# Auth Endpoint - POST /auth (No authentication required)
+AuthPostMethod:
+  Type: AWS::ApiGateway::Method
+  Properties:
+    RestApiId: !Ref IdpRestApi
+    ResourceId: !Ref AuthResource
+    HttpMethod: POST
+    AuthorizationType: NONE
+    Integration:
+      Type: AWS_PROXY
+      IntegrationHttpMethod: POST
+      Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambdaArn}/invocations'
+      IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+    MethodResponses:
+      - StatusCode: 200
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Origin: true
+        ResponseModels:
+          application/json: !Ref SuccessResponseModel
+      - StatusCode: 400
+        ResponseModels:
+          application/json: !Ref ErrorResponseModel
+      - StatusCode: 401
+        ResponseModels:
+          application/json: !Ref ErrorResponseModel
+
+AuthOptionsMethod:
+  <<: *cors_options_method
+  Properties:
+    RestApiId: !Ref IdpRestApi
+    ResourceId: !Ref AuthResource

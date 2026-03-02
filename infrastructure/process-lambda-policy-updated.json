@@ -1,0 +1,54 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:Query"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_users",
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_document_type",
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_datapoints",
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_metadata",
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_history",
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_transactions",
+                "arn:aws:dynamodb:us-east-1:726453626865:table/idp_rates"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "textract:AnalyzeDocument",
+                "textract:DetectDocumentText"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:InvokeModel",
+                "bedrock:InvokeAgent"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "aws-marketplace:ViewSubscriptions",
+                "aws-marketplace:Subscribe"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

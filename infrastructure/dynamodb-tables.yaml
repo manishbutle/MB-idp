@@ -1,0 +1,265 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DynamoDB tables for AI Document Processing system'
+
+Resources:
+  # 1. idp_users table
+  IdpUsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S
+        - AttributeName: tenant
+          AttributeType: S
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: tenant-email-index
+          KeySchema:
+            - AttributeName: tenant
+              KeyType: HASH
+            - AttributeName: email
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 2. idp_roles table
+  IdpRolesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_roles
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: role_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: role_id
+          KeyType: HASH
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 3. idp_transactions table
+  IdpTransactionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_transactions
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: transaction_id
+          AttributeType: S
+        - AttributeName: user_email
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: transaction_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user_email-timestamp-index
+          KeySchema:
+            - AttributeName: user_email
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 4. idp_history table
+  IdpHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_history
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: processing_id
+          AttributeType: S
+        - AttributeName: user_email
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: processing_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user_email-timestamp-index
+          KeySchema:
+            - AttributeName: user_email
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 5. idp_metadata table
+  IdpMetadataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_metadata
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: processing_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: processing_id
+          KeyType: HASH
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 6. idp_datapoints table
+  IdpDatapointsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_datapoints
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: prompt_id
+          AttributeType: S
+        - AttributeName: tenant
+          AttributeType: S
+        - AttributeName: prompt_name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: prompt_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: tenant-prompt_name-index
+          KeySchema:
+            - AttributeName: tenant
+              KeyType: HASH
+            - AttributeName: prompt_name
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 7. idp_document_type table
+  IdpDocumentTypeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_document_type
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: document_type_id
+          AttributeType: S
+        - AttributeName: tenant
+          AttributeType: S
+        - AttributeName: document_type_name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: document_type_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: tenant-document_type_name-index
+          KeySchema:
+            - AttributeName: tenant
+              KeyType: HASH
+            - AttributeName: document_type_name
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 8. idp_rates table
+  IdpRatesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_rates
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: rate_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: rate_id
+          KeyType: HASH
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+  # 9. idp_settings table
+  IdpSettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: idp_settings
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: setting_key
+          AttributeType: S
+      KeySchema:
+        - AttributeName: setting_key
+          KeyType: HASH
+      Tags:
+        - Key: Application
+          Value: AI-Document-Processing
+
+Outputs:
+  IdpUsersTableName:
+    Description: Name of the idp_users table
+    Value: !Ref IdpUsersTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpUsersTable'
+
+  IdpRolesTableName:
+    Description: Name of the idp_roles table
+    Value: !Ref IdpRolesTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpRolesTable'
+
+  IdpTransactionsTableName:
+    Description: Name of the idp_transactions table
+    Value: !Ref IdpTransactionsTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpTransactionsTable'
+
+  IdpHistoryTableName:
+    Description: Name of the idp_history table
+    Value: !Ref IdpHistoryTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpHistoryTable'
+
+  IdpMetadataTableName:
+    Description: Name of the idp_metadata table
+    Value: !Ref IdpMetadataTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpMetadataTable'
+
+  IdpDatapointsTableName:
+    Description: Name of the idp_datapoints table
+    Value: !Ref IdpDatapointsTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpDatapointsTable'
+
+  IdpDocumentTypeTableName:
+    Description: Name of the idp_document_type table
+    Value: !Ref IdpDocumentTypeTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpDocumentTypeTable'
+
+  IdpRatesTableName:
+    Description: Name of the idp_rates table
+    Value: !Ref IdpRatesTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpRatesTable'
+
+  IdpSettingsTableName:
+    Description: Name of the idp_settings table
+    Value: !Ref IdpSettingsTable
+    Export:
+      Name: !Sub '${AWS::StackName}-IdpSettingsTable'

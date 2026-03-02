@@ -1,0 +1,6 @@
+{
+  "Parameters": {
+    "Environment": "production",
+    "ProjectName": "ai-document-processing"
+  }
+}

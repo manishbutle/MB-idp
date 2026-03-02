@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Simplified API Gateway Configuration for AI Document Processing (without Lambda integration)'
+
+Resources:
+  # REST API
+  IdpRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ai-document-processing-api
+      Description: REST API for AI Document Processing
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  # Auth Resource
+  AuthResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: auth
+
+  # Process Document Resource
+  ProcessDocumentResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: process_document
+
+  # Datapoints Resource
+  DatapointsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: datapoints
+
+  # History Resource
+  HistoryResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: history
+
+  # My Transactions Resource
+  MyTransactionsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ParentId: !GetAtt IdpRestApi.RootResourceId
+      PathPart: mytransactions
+
+  # Mock GET method for Auth (so deployment doesn't fail)
+  AuthGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      ResourceId: !Ref AuthResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: '{"message": "API Gateway is ready. Lambda functions not yet connected."}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: Empty
+
+  # Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - AuthGetMethod
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      Description: Initial deployment
+
+  # Stage
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref IdpRestApi
+      DeploymentId: !Ref ApiDeployment
+      StageName: prod
+      Description: Production stage
+
+Outputs:
+  ApiGatewayUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${IdpRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
+    Export:
+      Name: !Sub '${AWS::StackName}-ApiUrl'
+  
+  RestApiId:
+    Description: REST API ID
+    Value: !Ref IdpRestApi
+    Export:
+      Name: !Sub '${AWS::StackName}-RestApiId'
